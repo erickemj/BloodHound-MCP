@@ -112,7 +112,7 @@ Maintain a professional, helpful, and instructive tone. Your responses should be
 """
     return p
 
-@mcp.tool("tool://run_query")
+@mcp.tool()
 def run_query(query: str, parameters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
     """
     執行Cypher查詢並返回結果
@@ -135,7 +135,7 @@ def run_query(query: str, parameters: Optional[Dict[str, Any]] = None) -> List[D
     finally:
         driver.close()
 
-@mcp.tool("tool://users_with_most_local_admin_rights")
+@mcp.tool()
 def users_with_most_local_admin_rights(domain):
     """
     [WIP] Users with Most Local Admin Rights
@@ -143,7 +143,7 @@ def users_with_most_local_admin_rights(domain):
     query = "MATCH (n:User {domain: '%s'}),(m:Computer), (n)-[r:AdminTo]->(m) WHERE NOT n.name STARTS WITH 'ANONYMOUS LOGON' AND NOT n.name='' WITH n, count(r) as rel_count order by rel_count desc LIMIT 10 MATCH p=(m)<-[r:AdminTo]-(n) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://computers_with_most_sessions")
+@mcp.tool()
 def computers_with_most_sessions(domain):
     """
     [WIP] Computers with Most Sessions [Required: sessions]
@@ -153,7 +153,7 @@ def computers_with_most_sessions(domain):
     query = "MATCH (m:Computer {domain: '%s'}),(n:User), (m)-[r:HasSession]->(n) WHERE NOT n.name STARTS WITH 'ANONYMOUS LOGON' AND NOT n.name='' WITH m, count(r) as rel_count order by rel_count desc LIMIT 10 MATCH p=(m)-[r:HasSession]->(n) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://users_with_most_sessions")
+@mcp.tool()
 def users_with_most_sessions(domain):
     """
     [WIP] Users with Most Sessions [Required: sessions]
@@ -161,7 +161,7 @@ def users_with_most_sessions(domain):
     query = "MATCH (n:User {domain: '%s'}),(m:Computer), (n)<-[r:HasSession]-(m) WHERE NOT n.name STARTS WITH 'ANONYMOUS LOGON' AND NOT n.name='' WITH n, count(r) as rel_count order by rel_count desc LIMIT 10 MATCH p=(m)-[r:HasSession]->(n) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://non_privileged_users_with_dangerous_permissions")
+@mcp.tool()
 def non_privileged_users_with_dangerous_permissions(domain):
     """
     List non-privileged user(s) with dangerous permissions to any node type
@@ -169,7 +169,7 @@ def non_privileged_users_with_dangerous_permissions(domain):
     query = "MATCH (u:User {enabled: true, admincount: false, domain: '%s'})-[r]->(a) RETURN u, COUNT(DISTINCT type(r)) AS permissions ORDER BY permissions DESC LIMIT 10" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_non_privileged_users_with_dangerous_permissions")
+@mcp.tool()
 def route_non_privileged_users_with_dangerous_permissions(domain):
     """
     Route non-privileged user(s) with dangerous permissions to any node type
@@ -177,7 +177,7 @@ def route_non_privileged_users_with_dangerous_permissions(domain):
     query = "MATCH (u:User {enabled: true, admincount: false, domain: '%s'})-[r]->(a) WITH u, COUNT(DISTINCT type(r)) AS permissions ORDER BY permissions DESC LIMIT 10 MATCH p=allshortestpaths((u)-[r]->(a)) WHERE NOT u = a RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://users_with_most_cross_domain_sessions")
+@mcp.tool()
 def users_with_most_cross_domain_sessions(domain):
     """
     [WIP] Users with most cross-domain sessions [Required: sessions]
@@ -186,7 +186,7 @@ def users_with_most_cross_domain_sessions(domain):
     return run_query(query)
 
 
-@mcp.tool("tool://list_high_value_targets")
+@mcp.tool()
 def list_high_value_targets(domain):
     """
     List high value target(s)
@@ -194,7 +194,7 @@ def list_high_value_targets(domain):
     query = "MATCH (a {highvalue: true, domain: '%s'}) RETURN a" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_domains")
+@mcp.tool()
 def list_domains():
     """
     List domain(s)
@@ -202,7 +202,7 @@ def list_domains():
     query = "MATCH (d:Domain) RETURN d"
     return run_query(query)
 
-@mcp.tool("tool://list_domain_trusts")
+@mcp.tool()
 def list_domain_trusts():
     """
     List domain trust(s)
@@ -210,7 +210,7 @@ def list_domain_trusts():
     query = "MATCH p=(n:Domain)-->(m:Domain) RETURN p"
     return run_query(query)
 
-@mcp.tool("tool://list_enabled_users")
+@mcp.tool()
 def list_enabled_users(domain):
     """
     List enabled user(s)
@@ -218,7 +218,7 @@ def list_enabled_users(domain):
     query = "MATCH (u:User {enabled:true, domain: '%s'}) RETURN u" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_enabled_users_with_email")
+@mcp.tool()
 def list_enabled_users_with_email(domain):
     """
     List enabled user(s) with an email address
@@ -226,7 +226,7 @@ def list_enabled_users_with_email(domain):
     query = "MATCH (u:User {enabled:true, domain: '%s'}) WHERE exists(u.email) RETURN u" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_non_managed_service_accounts")
+@mcp.tool()
 def list_non_managed_service_accounts(domain):
     """
     List non-managed service account(s)
@@ -234,7 +234,7 @@ def list_non_managed_service_accounts(domain):
     query = "MATCH (u:User {hasspn:true, domain: '%s'}) WHERE NOT u.name CONTAINS '$' AND NOT u.name CONTAINS 'KRBTGT' RETURN u" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_enabled_principals_with_unconstrained_delegation")
+@mcp.tool()
 def list_enabled_principals_with_unconstrained_delegation(domain):
     """
     List enabled principal(s) with \"Unconstrained Delegation\"
@@ -242,7 +242,7 @@ def list_enabled_principals_with_unconstrained_delegation(domain):
     query = "MATCH (a {unconstraineddelegation: true, enabled: true, domain: '%s'}) RETURN a" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_enabled_principals_with_constrained_delegation")
+@mcp.tool()
 def list_enabled_principals_with_constrained_delegation(domain):
     """
     List enabled principal(s) with \"Constrained Delegation\"
@@ -250,7 +250,7 @@ def list_enabled_principals_with_constrained_delegation(domain):
     query = "MATCH (a {enabled: true, domain: '%s'}) WHERE exists(a.`allowedtodelegate`) RETURN a" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_domain_controllers")
+@mcp.tool()
 def list_domain_controllers(domain):
     """
     List domain controller(s)
@@ -258,7 +258,7 @@ def list_domain_controllers(domain):
     query = "MATCH (c:Computer {domain: '%s'})-[:MemberOf]->(g:Group) WHERE g.samaccountname CONTAINS 'Domain Controllers' RETURN c" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_domain_computers")
+@mcp.tool()
 def list_domain_computers(domain):
     """
     List domain computer(s)
@@ -266,7 +266,7 @@ def list_domain_computers(domain):
     query = "MATCH (c:Computer {domain: '%s'}) RETURN c" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_certificate_authority_servers")
+@mcp.tool()
 def list_certificate_authority_servers(domain):
     """
     List Certificate Authority server(s) [Required: Certipy]
@@ -274,7 +274,7 @@ def list_certificate_authority_servers(domain):
     query = "MATCH (n:GPO {type:'Enrollment Service', domain: '%s'}) RETURN n" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_privileges_for_certificate_authority_servers")
+@mcp.tool()
 def list_privileges_for_certificate_authority_servers(domain):
     """
     [WIP] List privileges for Certificate Authority server(s) [Required: Certipy]
@@ -284,7 +284,7 @@ def list_privileges_for_certificate_authority_servers(domain):
     query = "MATCH p=(g)-[:ManageCa|ManageCertificates|Auditor|Operator|Read|Enroll]->(n:GPO {type:'Enrollment Service', domain: '%s'}) return p" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_certificate_templates")
+@mcp.tool()
 def list_all_certificate_templates(domain):
     """
     List all Certificate Template(s) [Required: Certipy]
@@ -292,7 +292,7 @@ def list_all_certificate_templates(domain):
     query = "MATCH (n:GPO {type:'Certificate Template', domain: '%s'}) RETURN n" % domain
     return run_query(query)
 
-@mcp.tool("tool://find_enabled_certificate_templates")
+@mcp.tool()
 def find_enabled_certificate_templates(domain):
     """
     Find enabled Certificate Template(s) [Required: Certipy]
@@ -300,7 +300,7 @@ def find_enabled_certificate_templates(domain):
     query = "MATCH (n:GPO {enabled:true, type:'Certificate Template', domain: '%s'}) RETURN n" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_enrollment_rights_for_certificate_templates")
+@mcp.tool()
 def list_all_enrollment_rights_for_certificate_templates(domain):
     """
     [WIP] List all Enrollment Right(s) for Certificate Template(s)
@@ -309,7 +309,7 @@ def list_all_enrollment_rights_for_certificate_templates(domain):
     query = "MATCH p=(g)-[:Enroll|AutoEnroll]->(n:GPO {type:'Certificate Template', domain: '%s'}) return p" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_computers_without_laps")
+@mcp.tool()
 def list_computers_without_laps(domain):
     """
     List computer(s) WITHOUT LAPS
@@ -317,7 +317,7 @@ def list_computers_without_laps(domain):
     query = "MATCH (c:Computer {haslaps:false, domain: '%s'}) RETURN c ORDER BY c.name" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_network_shares_ignoring_sysvol")
+@mcp.tool()
 def list_network_shares_ignoring_sysvol(domain):
     """
     List network share(s), ignoring SYSVOL
@@ -325,7 +325,7 @@ def list_network_shares_ignoring_sysvol(domain):
     query = "MATCH (a {domain: '%s'}) WHERE (any(prop in keys(a) where a[prop] contains '\\\\' and not a[prop] contains 'SYSVOL')) RETURN a" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_groups")
+@mcp.tool()
 def list_all_groups(domain):
     """
     List all group(s)
@@ -333,7 +333,7 @@ def list_all_groups(domain):
     query = "MATCH (g:Group {domain: '%s'}) RETURN g" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_gpos")
+@mcp.tool()
 def list_all_gpos(domain):
     """
     List all GPO(s)
@@ -341,7 +341,7 @@ def list_all_gpos(domain):
     query = "MATCH (g:GPO {domain: '%s'}) RETURN g" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_principals_with_local_admin_permission")
+@mcp.tool()
 def list_all_principals_with_local_admin_permission(domain):
     """
     List all principal(s) with \"Local Admin\" permission
@@ -349,7 +349,7 @@ def list_all_principals_with_local_admin_permission(domain):
     query = "MATCH p=(a {domain: '%s'})-[:MemberOf|AdminTo*1..]->(c:Computer) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_principals_with_rdp_permission")
+@mcp.tool()
 def list_all_principals_with_rdp_permission(domain):
     """
     List all principal(s) with \"RDP\" permission
@@ -357,7 +357,7 @@ def list_all_principals_with_rdp_permission(domain):
     query = "MATCH p=(a {domain: '%s'})-[:MemberOf|CanRDP*1..]->(c:Computer) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_principals_with_sqladmin_permission")
+@mcp.tool()
 def list_all_principals_with_sqladmin_permission(domain):
     """
     List all principal(s) with \"SQLAdmin\" permission
@@ -365,7 +365,7 @@ def list_all_principals_with_sqladmin_permission(domain):
     query = "MATCH p=(a {domain: '%s'})-[:MemberOf|SQLAdmin*1..]->(c:Computer) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_user_sessions")
+@mcp.tool()
 def list_all_user_sessions(domain):
     """
     List all user session(s) [Required: sessions]
@@ -373,7 +373,7 @@ def list_all_user_sessions(domain):
     query = "MATCH p=(u:User {domain: '%s'})<-[r:HasSession]-(c:Computer) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_users_with_description_field")
+@mcp.tool()
 def list_all_users_with_description_field(domain):
     """
     List all user(s) with description field
@@ -381,7 +381,7 @@ def list_all_users_with_description_field(domain):
     query = "MATCH (u:User {domain: '%s'}) WHERE u.description IS NOT null RETURN u" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_enabled_users_with_userpassword_attribute")
+@mcp.tool()
 def list_all_enabled_users_with_userpassword_attribute(domain):
     """
     List all enabled user(s) with \"userpassword\" attribute
@@ -389,7 +389,7 @@ def list_all_enabled_users_with_userpassword_attribute(domain):
     query = "MATCH (u:User {enabled:true, domain: '%s'}) WHERE u.userpassword IS NOT null RETURN u" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_enabled_users_with_password_never_expires")
+@mcp.tool()
 def list_all_enabled_users_with_password_never_expires(domain):
     """
     List all enabled user(s) with \"password never expires\" attribute
@@ -397,15 +397,15 @@ def list_all_enabled_users_with_password_never_expires(domain):
     query = "MATCH (u:User {pwdneverexpires:true, enabled:true, domain: '%s'}) RETURN u" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_enabled_users_with_password_never_expires_not_changed_last_year")
-def list_all_enabled_users_with_password_never_expires_not_changed_last_year(domain):
+@mcp.tool()
+def list_enabled_users_pwd_never_expires_unchanged_1yr(domain):
     """
     List all enabled user(s) with \"password never expires\" attribute and not changed in last year
     """
     query = "MATCH (u:User {enabled:true, domain: '%s'}) WHERE u.pwdneverexpires=TRUE AND u.pwdlastset < (datetime().epochseconds - (365 * 86400)) and NOT u.pwdlastset IN [-1.0, 0.0] RETURN u" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_enabled_users_with_no_password_required")
+@mcp.tool()
 def list_all_enabled_users_with_no_password_required(domain):
     """
     List all enabled user(s) with \"don't require passwords\" attribute
@@ -413,7 +413,7 @@ def list_all_enabled_users_with_no_password_required(domain):
     query = "MATCH (u:User {passwordnotreqd:true, enabled:true, domain: '%s'}) RETURN u" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_enabled_users_never_logged_in")
+@mcp.tool()
 def list_all_enabled_users_never_logged_in(domain):
     """
     List all enabled user(s) but never logged in
@@ -421,7 +421,7 @@ def list_all_enabled_users_never_logged_in(domain):
     query = "MATCH (u:User {enabled:true, domain: '%s'}) WHERE u.lastlogontimestamp=-1.0 RETURN u" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_enabled_users_logged_in_last_90_days")
+@mcp.tool()
 def list_all_enabled_users_logged_in_last_90_days(domain):
     """
     List all enabled user(s) that logged in within the last 90 days
@@ -429,7 +429,7 @@ def list_all_enabled_users_logged_in_last_90_days(domain):
     query = "MATCH (u:User {enabled:true, domain: '%s'}) WHERE u.lastlogon < (datetime().epochseconds - (90 * 86400)) and NOT u.lastlogon IN [-1.0, 0.0] RETURN u" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_enabled_users_set_password_last_90_days")
+@mcp.tool()
 def list_all_enabled_users_set_password_last_90_days(domain):
     """
     List all enabled user(s) that set password within the last 90 days
@@ -437,7 +437,7 @@ def list_all_enabled_users_set_password_last_90_days(domain):
     query = "MATCH (u:User {enabled:true, domain: '%s'}) WHERE u.pwdlastset < (datetime().epochseconds - (90 * 86400)) and NOT u.pwdlastset IN [-1.0, 0.0] RETURN u" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_enabled_users_with_foreign_group_membership")
+@mcp.tool()
 def list_all_enabled_users_with_foreign_group_membership(domain):
     """
     List all enabled user(s) with foreign group membership
@@ -445,7 +445,7 @@ def list_all_enabled_users_with_foreign_group_membership(domain):
     query = "MATCH p=(u:User {enabled:true, domain: '%s'})-[:MemberOf*1..]->(g:Group) WHERE NOT u.domain = g.domain RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_owned_users")
+@mcp.tool()
 def list_all_owned_users(domain):
     """
     List all owned user(s)
@@ -453,7 +453,7 @@ def list_all_owned_users(domain):
     query = "MATCH (u:User {owned:true, domain: '%s'}) RETURN u" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_owned_enabled_users")
+@mcp.tool()
 def list_all_owned_enabled_users(domain):
     """
     List all owned & enabled user(s)
@@ -461,7 +461,7 @@ def list_all_owned_enabled_users(domain):
     query = "MATCH (u:User {owned:true, enabled:true, domain: '%s'}) RETURN u" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_owned_enabled_users_with_email")
+@mcp.tool()
 def list_all_owned_enabled_users_with_email(domain):
     """
     List all owned & enabled user(s) with an email address
@@ -469,15 +469,15 @@ def list_all_owned_enabled_users_with_email(domain):
     query = "MATCH (u:User {owned:true, enabled:true, domain: '%s'}) WHERE exists(u.email) RETURN u" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_owned_enabled_users_with_local_admin_and_sessions")
-def list_all_owned_enabled_users_with_local_admin_and_sessions(domain):
+@mcp.tool()
+def list_own_en_usrs_local_adm_sess(domain):
     """
     List all owned & enabled user(s) with \"Local Admin\" permission, and any active sessions and their group membership(s)
     """
     query = "MATCH p=(u:User {owned:true, enabled: true, domain: '%s'})-[:MemberOf|AdminTo*1..]->(c:Computer) OPTIONAL MATCH p2=(c)-[:HasSession]->(u2:User) OPTIONAL MATCH p3=(u2:User)-[:MemberOf*1..]->(:Group) RETURN p, p2, p3" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_owned_enabled_users_with_rdp_and_sessions")
+@mcp.tool()
 def list_all_owned_enabled_users_with_rdp_and_sessions(domain):
     """
     List all owned & enabled user(s) with \"RDP\" permission, and any active sessions and their group membership(s)
@@ -485,7 +485,7 @@ def list_all_owned_enabled_users_with_rdp_and_sessions(domain):
     query = "MATCH p=(u:User {owned:true, enabled: true, domain: '%s'})-[:MemberOf|CanRDP*1..]->(c:Computer) OPTIONAL MATCH p2=(c)-[:HasSession]->(u2:User) OPTIONAL MATCH p3=(u2:User)-[:MemberOf*1..]->(:Group) RETURN p, p2, p3" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_owned_enabled_users_with_sqladmin")
+@mcp.tool()
 def list_all_owned_enabled_users_with_sqladmin(domain):
     """
     List all owned & enabled user(s) with \"SQLAdmin\" permission
@@ -493,7 +493,7 @@ def list_all_owned_enabled_users_with_sqladmin(domain):
     query = "MATCH p=(u:User {owned:true, enabled: true, domain: '%s'})-[:MemberOf|SQLAdmin*1..]->(c:Computer) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_owned_computers")
+@mcp.tool()
 def list_all_owned_computers(domain):
     """
     List all owned computer(s)
@@ -501,7 +501,7 @@ def list_all_owned_computers(domain):
     query = "MATCH (c:Computer {owned:true, domain: '%s'}) RETURN c ORDER BY c.name" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_all_owned_enabled_group_memberships")
+@mcp.tool()
 def route_all_owned_enabled_group_memberships(domain):
     """
     Route all owned & enabled group membership(s)
@@ -509,7 +509,7 @@ def route_all_owned_enabled_group_memberships(domain):
     query = "MATCH p=(u:User {owned:true, enabled:true, domain: '%s'})-[:MemberOf*1..]->(g:Group) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_all_owned_enabled_non_privileged_group_memberships")
+@mcp.tool()
 def route_all_owned_enabled_non_privileged_group_memberships(domain):
     """
     Route all owned & enabled non-privileged group(s) membership
@@ -517,7 +517,7 @@ def route_all_owned_enabled_non_privileged_group_memberships(domain):
     query = "MATCH p=(u:User {owned:true, enabled:true, domain: '%s'})-[:MemberOf*1..]->(g:Group {admincount:false}) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_all_owned_enabled_privileged_group_memberships")
+@mcp.tool()
 def route_all_owned_enabled_privileged_group_memberships(domain):
     """
     Route all owned & enabled privileged group(s) membership
@@ -525,39 +525,39 @@ def route_all_owned_enabled_privileged_group_memberships(domain):
     query = "MATCH p=(u:User {owned:true, enabled:true, domain: '%s'})-[:MemberOf*1..]->(g:Group {admincount:true}) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_all_owned_enabled_users_with_dangerous_rights_to_any_node")
-def route_all_owned_enabled_users_with_dangerous_rights_to_any_node(domain):
+@mcp.tool()
+def route_owned_users_dangerous_rights_to_any(domain):
     """
     Route all owned & enabled user(s) with Dangerous Rights to any node type
     """
     query = "MATCH p=allshortestpaths((u:User {owned:true, enabled:true, domain: '%s'})-[:MemberOf|Owns|WriteDacl|GenericAll|WriteOwner|ExecuteDCOM|AllowedToDelegate|ForceChangePassword|AdminTo*1..]->(a)) WHERE NOT a = u RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_all_owned_enabled_users_with_dangerous_rights_to_groups")
-def route_all_owned_enabled_users_with_dangerous_rights_to_groups(domain):
+@mcp.tool()
+def route_owned_users_dangerous_rights_to_groups(domain):
     """
     Route all owned & enabled user(s) with Dangerous Rights to group(s)
     """
     query = "MATCH p=allshortestpaths((u:User {owned:true, enabled:true, domain: '%s'})-[:MemberOf|Owns|WriteDacl|GenericAll|WriteOwner|ExecuteDCOM|AllowedToDelegate|ForceChangePassword|AdminTo*1..]->(:Group)) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_all_owned_enabled_users_with_dangerous_rights_to_users")
-def route_all_owned_enabled_users_with_dangerous_rights_to_users(domain):
+@mcp.tool()
+def route_own_en_usrs_dang_rts_usrs(domain):
     """
     Route all owned & enabled user(s) with Dangerous Rights to user(s)
     """
     query = "MATCH p=allshortestpaths((o:User {owned:true, enabled:true, domain: '%s'})-[:MemberOf|Owns|WriteDacl|GenericAll|WriteOwner|ExecuteDCOM|AllowedToDelegate|ForceChangePassword|AdminTo*1..]->(u:User)) WHERE NOT o = u RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_from_owned_enabled_users_to_unconstrained_delegation")
-def route_from_owned_enabled_users_to_unconstrained_delegation(domain):
+@mcp.tool()
+def route_own_en_usrs_unconst_del(domain):
     """
     Route from owned & enabled user(s) to all principals with \"Unconstrained Delegation\"
     """
     query = "MATCH p=allshortestpaths((o:User {owned:true, enabled:true, domain: '%s'})-[*]->(a {unconstraineddelegation: true, enabled: true})) WHERE NOT o = a RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_from_owned_enabled_principals_to_high_value_targets")
+@mcp.tool()
 def route_from_owned_enabled_principals_to_high_value_targets(domain):
     """
     Route from owned & enabled principals to high value target(s)
@@ -565,31 +565,31 @@ def route_from_owned_enabled_principals_to_high_value_targets(domain):
     query = "MATCH p=allShortestPaths((o {owned:true, enabled:true, domain: '%s'})-[*]->(a {highvalue: true})) WHERE NOT o=a RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://find_all_owned_users_with_privileged_access_to_azure_tenancy")
-def find_all_owned_users_with_privileged_access_to_azure_tenancy(domain):
+@mcp.tool()
+def find_owned_users_with_azure_tenancy_access(domain):
     """
     Owned: [WIP] Find all owned user with privileged access to Azure Tenancy (Required: azurehound)
     """
     query = "MATCH p=(n {owned:true, enabled:true, domain: '%s'})-[r:MemberOf|AZGlobalAdmin|AZPrivilegedRoleAdmin*1..]->(:AZTenant) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://find_all_owned_users_where_group_grants_azure_privileged_access")
-def find_all_owned_users_where_group_grants_azure_privileged_access(domain):
+@mcp.tool()
+def find_owned_users_with_group_granted_azure_access(domain):
     """
     Owned: [WIP] Find all owned user where group membership grants privileged access to Azure Tenancy (Required: azurehound)
     """
     query = "MATCH p=(n {owned:true, enabled:true, domain: '%s'})-[:MemberOf*1..]->(g:Group)-[r:AZGlobalAdmin|AZPrivilegedRoleAdmin*1..]->(:AZTenant) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://find_all_owners_of_azure_applications_with_dangerous_rights")
-def find_all_owners_of_azure_applications_with_dangerous_rights(domain):
+@mcp.tool()
+def find_azure_app_owners_with_dangerous_rights(domain):
     """
     Owned: [WIP] Find all Owners of Azure Applications with Owners to Service Principals with Dangerous Rights (Required: azurehound)
     """
     query = "MATCH p = (n {enabled:true, owned:true, domain: '%s'})-[:AZOwns]->(azapp:AZApp)-[r1]->(azsp:AZServicePrincipal)-[r:AZGlobalAdmin|AZPrivilegedRoleAdmin*1..]->(azt:AZTenant) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://find_all_owned_groups_granting_network_share_access")
+@mcp.tool()
 def find_all_owned_groups_granting_network_share_access(domain):
     """
     Find all owned groups that grant access to network shares
@@ -597,7 +597,7 @@ def find_all_owned_groups_granting_network_share_access(domain):
     query = "MATCH p=(u:User {owned:true, domain: '%s'})-[:MemberOf*1..]->(g:Group) where (any(prop in keys(g) where g[prop] contains '\\\\')) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_all_sessions_to_computers_without_laps")
+@mcp.tool()
 def route_all_sessions_to_computers_without_laps(domain):
     """
     Route all sessions to computers WITHOUT LAPS (Required: sessions)
@@ -605,7 +605,7 @@ def route_all_sessions_to_computers_without_laps(domain):
     query = "MATCH p=(u:User {owned:true, domain: '%s'})<-[r:HasSession]-(c:Computer {haslaps:false}) RETURN p ORDER BY c.name" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_all_sessions_to_computers")
+@mcp.tool()
 def route_all_sessions_to_computers(domain):
     """
     Route all sessions to computers (Required: sessions)
@@ -613,7 +613,7 @@ def route_all_sessions_to_computers(domain):
     query = "MATCH p=(u:User {owned:true, domain: '%s'})<-[r:HasSession]-(c:Computer) RETURN p ORDER BY c.name" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_enabled_non_privileged_users_with_local_admin")
+@mcp.tool()
 def list_enabled_non_privileged_users_with_local_admin(domain):
     """
     List enabled non-privileged user(s) with \"Local Admin\" permission
@@ -621,15 +621,15 @@ def list_enabled_non_privileged_users_with_local_admin(domain):
     query = "MATCH p=(u:User {enabled: true, admincount: false, domain: '%s'})-[:MemberOf|AdminTo*1..]->(c:Computer) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_enabled_non_privileged_users_with_local_admin_and_sessions")
-def list_enabled_non_privileged_users_with_local_admin_and_sessions(domain):
+@mcp.tool()
+def list_non_priv_users_with_admin_and_sessions(domain):
     """
     List enabled non-privileged user(s) with \"Local Admin\" permission, and any active sessions and their group membership(s)
     """
     query = "MATCH p=(u:User {enabled: true, admincount: false, domain: '%s'})-[:MemberOf|AdminTo*1..]->(c:Computer) OPTIONAL MATCH p2=(c)-[:HasSession]->(u2:User) OPTIONAL MATCH p3=(u2:User)-[:MemberOf*1..]->(:Group) RETURN p, p2, p3" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_enabled_non_privileged_users_with_rdp")
+@mcp.tool()
 def list_enabled_non_privileged_users_with_rdp(domain):
     """
     List enabled non-privileged user(s) with \"RDP\" permission
@@ -637,7 +637,7 @@ def list_enabled_non_privileged_users_with_rdp(domain):
     query = "MATCH p=(u:User {enabled: true, admincount: false, domain: '%s'})-[:MemberOf|CanRDP*1..]->(c:Computer) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_enabled_non_privileged_users_with_rdp_and_sessions")
+@mcp.tool()
 def list_enabled_non_privileged_users_with_rdp_and_sessions(domain):
     """
     List enabled non-privileged user(s) with \"RDP\" permission, and any active sessions and their group membership(s)
@@ -645,7 +645,7 @@ def list_enabled_non_privileged_users_with_rdp_and_sessions(domain):
     query = "MATCH p=(u:User {enabled: true, admincount: false, domain: '%s'})-[:MemberOf|CanRDP*1..]->(c:Computer) OPTIONAL MATCH p2=(c)-[:HasSession]->(u2:User) OPTIONAL MATCH p3=(u2:User)-[:MemberOf*1..]->(:Group) RETURN p, p2, p3" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_enabled_non_privileged_users_with_sqladmin")
+@mcp.tool()
 def list_enabled_non_privileged_users_with_sqladmin(domain):
     """
     List enabled non-privileged user(s) with \"SQLAdmin\" permission
@@ -653,7 +653,7 @@ def list_enabled_non_privileged_users_with_sqladmin(domain):
     query = "MATCH p=(u:User {enabled: true, admincount: false, domain: '%s'})-[:MemberOf|SQLAdmin*1..]->(c:Computer) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_domain_users_group_memberships")
+@mcp.tool()
 def list_all_domain_users_group_memberships(domain):
     """
     List all \"Domain Users\" group membership(s)
@@ -661,7 +661,7 @@ def list_all_domain_users_group_memberships(domain):
     query = "MATCH p=(g1:Group {domain: '%s'})-[:MemberOf*1..]->(g2:Group) WHERE g1.name STARTS WITH 'DOMAIN USERS' RETURN p ORDER BY g2.name" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_authenticated_users_group_memberships")
+@mcp.tool()
 def list_all_authenticated_users_group_memberships(domain):
     """
     List all \"Authenticated Users\" group membership(s)
@@ -669,7 +669,7 @@ def list_all_authenticated_users_group_memberships(domain):
     query = "MATCH p=(g1:Group {domain: '%s'})-[:MemberOf*1..]->(g2:Group) WHERE g1.name STARTS WITH 'AUTHENTICATED USERS' RETURN p ORDER BY g2.name" % domain
     return run_query(query)
 
-@mcp.tool("tool://find_all_enabled_as_rep_roastable_users")
+@mcp.tool()
 def find_all_enabled_as_rep_roastable_users(domain):
     """
     Find all enabled AS-REP roastable user(s)
@@ -677,7 +677,7 @@ def find_all_enabled_as_rep_roastable_users(domain):
     query = "MATCH (u:User {dontreqpreauth: true, enabled:true, domain: '%s'}) WHERE NOT u.name CONTAINS '$' and NOT u.name CONTAINS 'KRBTGT' RETURN u" % domain
     return run_query(query)
 
-@mcp.tool("tool://find_all_enabled_kerberoastable_users")
+@mcp.tool()
 def find_all_enabled_kerberoastable_users(domain):
     """
     Find all enabled kerberoastable user(s)
@@ -685,7 +685,7 @@ def find_all_enabled_kerberoastable_users(domain):
     query = "MATCH (u:User {hasspn: true, enabled:true, domain: '%s'}) WHERE NOT u.name CONTAINS '$' and NOT u.name CONTAINS 'KRBTGT' RETURN u" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_non_privileged_users_with_dangerous_rights_to_users")
+@mcp.tool()
 def route_non_privileged_users_with_dangerous_rights_to_users(domain):
     """
     Route non-privileged user(s) with dangerous rights to user(s) [HIGH RAM]
@@ -693,23 +693,23 @@ def route_non_privileged_users_with_dangerous_rights_to_users(domain):
     query = "MATCH p=allshortestpaths((u:User {enabled: true, admincount: false, domain: '%s'})-[:MemberOf|Owns|WriteDacl|GenericAll|WriteOwner|ExecuteDCOM|AllowedToDelegate|ForceChangePassword|AdminTo*1..]->(a:User)) WHERE NOT u = a RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_non_privileged_users_with_dangerous_rights_to_groups")
-def route_non_privileged_users_with_dangerous_rights_to_groups(domain):
+@mcp.tool()
+def route_non_priv_usrs_dang_rts_grps(domain):
     """
     Route non-privileged user(s) with dangerous rights to group(s) [HIGH RAM]
     """
     query = "MATCH p=allshortestpaths((u:User {enabled: true, admincount: false, domain: '%s'})-[:MemberOf|Owns|WriteDacl|GenericAll|WriteOwner|ExecuteDCOM|AllowedToDelegate|ForceChangePassword|AdminTo*1..]->(a:Group)) WHERE NOT u = a RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_non_privileged_users_with_dangerous_rights_to_computers")
-def route_non_privileged_users_with_dangerous_rights_to_computers(domain):
+@mcp.tool()
+def route_non_priv_users_dangerous_rights_to_comps(domain):
     """
     Route non-privileged user(s) with dangerous rights to computer(s) [HIGH RAM]
     """
     query = "MATCH p=allshortestpaths((u:User {enabled: true, admincount: false, domain: '%s'})-[:MemberOf|Owns|WriteDacl|GenericAll|WriteOwner|ExecuteDCOM|AllowedToDelegate|ForceChangePassword|AdminTo*1..]->(a:Computer)) WHERE NOT u = a RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_non_privileged_users_with_dangerous_rights_to_gpos")
+@mcp.tool()
 def route_non_privileged_users_with_dangerous_rights_to_gpos(domain):
     """
     Route non-privileged user(s) with dangerous rights to GPO(s) [HIGH RAM]
@@ -717,55 +717,55 @@ def route_non_privileged_users_with_dangerous_rights_to_gpos(domain):
     query = "MATCH p=allshortestpaths((u:User {enabled: true, admincount: false, domain: '%s'})-[:MemberOf|Owns|WriteDacl|GenericAll|WriteOwner|ExecuteDCOM|AllowedToDelegate|ForceChangePassword|AdminTo*1..]->(a:GPO)) WHERE NOT u = a RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_non_privileged_users_with_dangerous_rights_to_privileged_nodes")
-def route_non_privileged_users_with_dangerous_rights_to_privileged_nodes(domain):
+@mcp.tool()
+def route_non_priv_users_dangerous_rights_to_priv_nodes(domain):
     """
     Route non-privileged user(s) with dangerous rights to privileged node(s) [HIGH RAM]
     """
     query = "MATCH p=allshortestpaths((u:User {enabled: true, admincount: false, domain: '%s'})-[:MemberOf|Owns|WriteDacl|GenericAll|WriteOwner|ExecuteDCOM|AllowedToDelegate|ForceChangePassword|AdminTo*1..]->(a {admincount: true})) WHERE NOT u = a RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_non_privileged_computers_with_dangerous_rights_to_users")
-def route_non_privileged_computers_with_dangerous_rights_to_users(domain):
+@mcp.tool()
+def route_non_priv_comps_dangerous_rights_to_users(domain):
     """
     Route non-privileged computer(s) with dangerous rights to user(s) [HIGH RAM]
     """
     query = "MATCH p=allshortestpaths((c:Computer {admincount: false})-[:MemberOf|Owns|WriteDacl|GenericAll|WriteOwner|ExecuteDCOM|AllowedToDelegate|ForceChangePassword|AdminTo*1..]->(a:User {domain: '%s'})) WHERE NOT c = a RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_non_privileged_computers_with_dangerous_rights_to_groups")
-def route_non_privileged_computers_with_dangerous_rights_to_groups(domain):
+@mcp.tool()
+def route_non_priv_comps_dangerous_rights_to_groups(domain):
     """
     Route non-privileged computer(s) with dangerous rights to group(s) [HIGH RAM]
     """
     query = "MATCH p=allshortestpaths((c:Computer {admincount: false})-[:MemberOf|Owns|WriteDacl|GenericAll|WriteOwner|ExecuteDCOM|AllowedToDelegate|ForceChangePassword|AdminTo*1..]->(a:Group {domain: '%s'})) WHERE NOT c = a RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_non_privileged_computers_with_dangerous_rights_to_computers")
-def route_non_privileged_computers_with_dangerous_rights_to_computers(domain):
+@mcp.tool()
+def route_non_priv_comps_dangerous_rights_to_comps(domain):
     """
     Route non-privileged computer(s) with dangerous rights to computer(s) [HIGH RAM]
     """
     query = "MATCH p=allshortestpaths((c:Computer {admincount: false})-[:MemberOf|Owns|WriteDacl|GenericAll|WriteOwner|ExecuteDCOM|AllowedToDelegate|ForceChangePassword|AdminTo*1..]->(a:Computer {domain: '%s'})) WHERE NOT c = a RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_non_privileged_computers_with_dangerous_rights_to_gpos")
-def route_non_privileged_computers_with_dangerous_rights_to_gpos(domain):
+@mcp.tool()
+def route_non_priv_comps_dangerous_rights_to_gpos(domain):
     """
     Route non-privileged computer(s) with dangerous rights to GPO(s) [HIGH RAM]
     """
     query = "MATCH p=allshortestpaths((c:Computer {admincount: false})-[:MemberOf|Owns|WriteDacl|GenericAll|WriteOwner|ExecuteDCOM|AllowedToDelegate|ForceChangePassword|AdminTo*1..]->(a:GPO {domain: '%s'})) WHERE NOT c = a RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_non_privileged_computers_with_dangerous_rights_to_privileged_nodes")
-def route_non_privileged_computers_with_dangerous_rights_to_privileged_nodes(domain):
+@mcp.tool()
+def route_non_priv_comps_dangerous_rights_to_priv_nodes(domain):
     """
     Route non-privileged computer(s) with dangerous rights to privileged node(s) [HIGH RAM]
     """
     query = "MATCH p=allshortestpaths((c:Computer {admincount: false})-[:MemberOf|Owns|WriteDacl|GenericAll|WriteOwner|ExecuteDCOM|AllowedToDelegate|ForceChangePassword|AdminTo*1..]->(a {admincount: true, domain: '%s'})) WHERE NOT c = a RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_esc1_vulnerable_certificate_templates")
+@mcp.tool()
 def list_esc1_vulnerable_certificate_templates(domain):
     """
     List ESC1 vulnerable Certificate Template(s) [Required: Certipy]
@@ -773,7 +773,7 @@ def list_esc1_vulnerable_certificate_templates(domain):
     query = "MATCH (n:GPO {Enabled:true, type:'Certificate Template', `Enrollee Supplies Subject`:true, `Client Authentication`:true, domain: '%s'}) RETURN n" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_esc2_vulnerable_certificate_templates")
+@mcp.tool()
 def list_esc2_vulnerable_certificate_templates(domain):
     """
     List ESC2 vulnerable Certificate Template(s) [Required: Certipy]
@@ -781,7 +781,7 @@ def list_esc2_vulnerable_certificate_templates(domain):
     query = "MATCH (n:GPO {Enabled:true, type:'Certificate Template', domain: '%s'}) WHERE (n.`Extended Key Usage` = [] or 'Any Purpose' IN n.`Extended Key Usage`) RETURN n" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_esc3_vulnerable_certificate_templates")
+@mcp.tool()
 def list_esc3_vulnerable_certificate_templates(domain):
     """
     List ESC3 vulnerable Certificate Template(s) [Required: Certipy]
@@ -789,7 +789,7 @@ def list_esc3_vulnerable_certificate_templates(domain):
     query = "MATCH (n:GPO {Enabled:true, type:'Certificate Template', domain: '%s'}) WHERE (n.`Extended Key Usage` = [] or 'Any Purpose' IN n.`Extended Key Usage` or 'Certificate Request Agent' IN n.`Extended Key Usage`) RETURN n" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_esc4_vulnerable_certificate_templates")
+@mcp.tool()
 def list_esc4_vulnerable_certificate_templates(domain):
     """
     List ESC4 vulnerable Certificate Template(s) [Required: Certipy]
@@ -797,7 +797,7 @@ def list_esc4_vulnerable_certificate_templates(domain):
     query = "MATCH p=shortestPath((g)-[:GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner*1..]->(n:GPO {Enabled:true, type:'Certificate Template', domain: '%s'})) WHERE g<>n RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_esc6_vulnerable_certificate_templates")
+@mcp.tool()
 def list_esc6_vulnerable_certificate_templates(domain):
     """
     List ESC6 vulnerable Certificate Template(s) [Required: Certipy]
@@ -805,7 +805,7 @@ def list_esc6_vulnerable_certificate_templates(domain):
     query = "MATCH (n:GPO {type:'Enrollment Service', `User Specified SAN`:'Enabled', domain: '%s'}) RETURN n" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_esc7_vulnerable_certificate_templates")
+@mcp.tool()
 def list_esc7_vulnerable_certificate_templates(domain):
     """
     List ESC7 vulnerable Certificate Template(s) [Required: Certipy]
@@ -813,7 +813,7 @@ def list_esc7_vulnerable_certificate_templates(domain):
     query = "MATCH p=shortestPath((g)-[r:GenericAll|GenericWrite|Owns|WriteDacl|WriteOwner|ManageCa|ManageCertificates*1..]->(n:GPO {type:'Enrollment Service', domain: '%s'})) WHERE g<>n RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_esc8_vulnerable_certificate_templates")
+@mcp.tool()
 def list_esc8_vulnerable_certificate_templates(domain):
     """
     List ESC8 vulnerable Certificate Template(s) [Required: Certipy]
@@ -821,7 +821,7 @@ def list_esc8_vulnerable_certificate_templates(domain):
     query = "MATCH (n:GPO {type:'Enrollment Service', `Web Enrollment`:'Enabled', domain: '%s'}) RETURN n" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_cross_domain_user_sessions_and_memberships")
+@mcp.tool()
 def list_all_cross_domain_user_sessions_and_memberships(domain):
     """
     List all cross-domain user session(s) and user group membership(s)
@@ -829,7 +829,7 @@ def list_all_cross_domain_user_sessions_and_memberships(domain):
     query = "MATCH p=(g1:Group)<-[:MemberOf*1..]-(u:User {enabled:true, domain: '%s'})<-[:HasSession]-(c:Computer) WHERE NOT u.domain = c.domain RETURN p ORDER BY c.name" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_privileged_users_without_protected_users")
+@mcp.tool()
 def list_privileged_users_without_protected_users(domain):
     """
     List privileged user(s) without \"Protected Users\" group membership
@@ -837,7 +837,7 @@ def list_privileged_users_without_protected_users(domain):
     query = "MATCH (u:User {admincount:true, domain: '%s'}), (c:Computer), (u)-[:MemberOf*1..]->(g) WHERE g.name CONTAINS 'Protected Users' WITH COLLECT(u) AS privilegedUsers MATCH (u2:User {admincount:true}) WHERE NOT u2 IN privilegedUsers RETURN u2" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_custom_privileged_groups")
+@mcp.tool()
 def list_custom_privileged_groups(domain):
     """
     List custom privileged group(s)
@@ -845,31 +845,31 @@ def list_custom_privileged_groups(domain):
     query = "MATCH (g:Group {admincount:true, highvalue:false, domain: '%s'}) WHERE NOT (g.objectid =~ '(?i)S-1-5-.*-512' or g.objectid =~ '(?i)S-1-5-.*-519' or g.objectid =~ '(?i)S-1-5-.*-544' or g.objectid =~ '(?i)S-1-5-.*-548' or g.objectid CONTAINS '-552' or g.objectid =~ '(?i)S-1-5-.*-526' or g.objectid =~ '(?i)S-1-5-.*-521' or g.objectid =~ '(?i)S-1-5-.*-527' or g.objectid =~ '(?i)S-1-5-.*-518') RETURN g" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_enabled_svc_accounts_with_privileged_group_memberships")
-def list_enabled_svc_accounts_with_privileged_group_memberships(domain):
+@mcp.tool()
+def list_en_svc_accts_priv_grp_mems(domain):
     """
     List all enabled SVC account(s) with privileged group membership(s)
     """
     query = "MATCH p=(u:User {enabled: true, hasspn: true, domain: '%s'})-[:MemberOf*1..]->(g:Group {admincount: true}) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://route_privileged_users_with_sessions_to_non_privileged_computers")
-def route_privileged_users_with_sessions_to_non_privileged_computers(domain):
+@mcp.tool()
+def route_priv_users_sessions_to_non_priv_comps(domain):
     """
     Route all privileged user(s) with sessions to non-privileged computer(s) [Required: sessions]
     """
     query = "MATCH (c:Computer), (u:User), (g:Group), (c)-[:MemberOf*1..]->(:Group {admincount:false}) MATCH p=(c)-[:HasSession]->(u {admincount:true, domain: '%s'}) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://find_allshortestpaths_with_dangerous_rights_to_adminsdholder")
-def find_allshortestpaths_with_dangerous_rights_to_adminsdholder(domain):
+@mcp.tool()
+def find_paths_dangerous_rights_to_adminsdholder(domain):
     """
     Find allshortestpaths with dangerous rights to AdminSDHolder object
     """
     query = "MATCH p=allshortestpaths((u:User {enabled:true, admincount:false, domain: '%s'})-[*]->(c:Container)) WHERE c.distinguishedname CONTAINS 'ADMINSDHOLDER' RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://find_allshortestpaths_with_dcsync_to_domain")
+@mcp.tool()
 def find_allshortestpaths_with_dcsync_to_domain(domain):
     """
     Find allshortestpaths with DCSync to domain object
@@ -877,7 +877,7 @@ def find_allshortestpaths_with_dcsync_to_domain(domain):
     query = "MATCH p=allshortestpaths((u:User {enabled:true, admincount:false, domain: '%s'})-[r:MemberOf|DCSync*1..]->(:Domain)) RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://find_allshortestpaths_with_shadow_credential_permission")
+@mcp.tool()
 def find_allshortestpaths_with_shadow_credential_permission(domain):
     """
     Find allshortestpaths with Shadow Credential permission to principal(s)
@@ -885,7 +885,7 @@ def find_allshortestpaths_with_shadow_credential_permission(domain):
     query = "MATCH p=allshortestpaths((a {domain: '%s'})-[:MemberOf|AddKeyCredentialLink*1..]->(b)) WHERE NOT a=b RETURN p" % domain
     return run_query(query)
 
-@mcp.tool("tool://list_all_tenancy")
+@mcp.tool()
 def list_all_tenancy():
     """
     List all Tenancy (Required: azurehound)
@@ -893,7 +893,7 @@ def list_all_tenancy():
     query = "MATCH (t:AZTenant) RETURN t"
     return run_query(query)
 
-@mcp.tool("tool://list_all_aad_groups_synchronized_with_ad")
+@mcp.tool()
 def list_all_aad_groups_synchronized_with_ad():
     """
     [WIP] List all AAD Group(s) that are synchronized with AD (Required: azurehound)
@@ -901,7 +901,7 @@ def list_all_aad_groups_synchronized_with_ad():
     query = "MATCH (n:Group) WHERE n.objectid CONTAINS 'S-1-5' AND n.azsyncid IS NOT NULL RETURN n"
     return run_query(query)
 
-@mcp.tool("tool://list_all_principals_used_for_syncing_ad_and_aad")
+@mcp.tool()
 def list_all_principals_used_for_syncing_ad_and_aad():
     """
     [WIP] List all principal(s) used for syncing AD and AAD
@@ -909,7 +909,7 @@ def list_all_principals_used_for_syncing_ad_and_aad():
     query = "MATCH (u) WHERE (u:User OR u:AZUser) AND (u.name =~ '(?i)^MSOL_|.*AADConnect.*' OR u.userprincipalname =~ '(?i)^sync_.*') OPTIONAL MATCH (u)-[:HasSession]->(s:Session) RETURN u, s"
     return run_query(query)
 
-@mcp.tool("tool://list_all_enabled_azure_users")
+@mcp.tool()
 def list_all_enabled_azure_users():
     """
     List all enabled Azure User(s) (Required: azurehound)
@@ -917,7 +917,7 @@ def list_all_enabled_azure_users():
     query = "MATCH (u:AZUser {enabled:true}) RETURN u"
     return run_query(query)
 
-@mcp.tool("tool://list_all_enabled_azure_users_group_memberships")
+@mcp.tool()
 def list_all_enabled_azure_users_group_memberships():
     """
     List all enabled Azure User(s) Azure Group membership(s) (Required: azurehound)
@@ -925,7 +925,7 @@ def list_all_enabled_azure_users_group_memberships():
     query = "MATCH p=(azu:AZUser {enabled:true})-[:MemberOf*1..]->(azg:AZGroup) RETURN p"
     return run_query(query)
 
-@mcp.tool("tool://list_all_ad_principals_with_edges_to_azure_principals")
+@mcp.tool()
 def list_all_ad_principals_with_edges_to_azure_principals():
     """
     [WIP] List all AD principal(s) with edge(s) to Azure principal(s) (Required: azurehound)
@@ -933,23 +933,23 @@ def list_all_ad_principals_with_edges_to_azure_principals():
     query = "MATCH p=(u:User)-[r:MemberOf|AZResetPassword|AZOwns|AZUserAccessAdministrator|AZContributor|AZAddMembers|AZGlobalAdmin|AZVMContributor|AZOwnsAZAvereContributor*1..]->(n) WHERE u.objectid CONTAINS 'S-1-5-21' RETURN p"
     return run_query(query)
 
-@mcp.tool("tool://list_all_principals_with_privileged_access_to_azure_tenancy")
-def list_all_principals_with_privileged_access_to_azure_tenancy():
+@mcp.tool()
+def list_principals_with_azure_tenancy_access():
     """
     [WIP] List all principal(s) with privileged access to Azure Tenancy (Required: azurehound)
     """
     query = "MATCH (a) WHERE (a:User OR a:AZUser) WITH a MATCH p=(a)-[r:MemberOf|AZGlobalAdmin|AZPrivilegedRoleAdmin*1..]->(azt:AZTenant) RETURN p"
     return run_query(query)
 
-@mcp.tool("tool://route_principals_to_azure_applications_and_service_principals")
-def route_principals_to_azure_applications_and_service_principals():
+@mcp.tool()
+def route_principals_to_azure_apps_and_sps():
     """
     [WIP] Route all principal(s) that have control permissions to Azure Application(s) running as Azure Service Principals (AzSP), and route from privileged ASP to Azure Tenancy (Required: azurehound)
     """
     query = "MATCH (a) WHERE (a:User OR a:AZUser) WITH a MATCH p=(a)-[:MemberOf|AZOwns|AZAppAdmin*1..]->(azapp:AZApp) OPTIONAL MATCH p2=(azapp)-[:AZRunsAs]->(azsp:AZServicePrincipal) OPTIONAL MATCH p3=(azsp)-[:MemberOf|AZGlobalAdmin|AZPrivilegedRoleAdmin*1..]->(azt:AZTenant) RETURN p, p2, p3"
     return run_query(query)
 
-@mcp.tool("tool://route_user_principals_to_azure_service_principals")
+@mcp.tool()
 def route_user_principals_to_azure_service_principals():
     """
     [WIP] Route all user principal(s) that have control permissions to Azure Service Principals (AzSP), and route from AzSP to principal(s) (Required: azurehound)
@@ -957,7 +957,7 @@ def route_user_principals_to_azure_service_principals():
     query = "MATCH (a) WHERE (a:User OR a:AZUser) WITH a MATCH p=allShortestPaths((a)-[*]->(azsp:AZServicePrincipal)-[*]->(b)) WHERE NOT a=b RETURN p"
     return run_query(query)
 
-@mcp.tool("tool://route_azure_users_with_dangerous_rights_to_users")
+@mcp.tool()
 def route_azure_users_with_dangerous_rights_to_users():
     """
     [WIP] Route from Azure User principal(s) that have dangerous rights to Azure User and User principal(s) (Required: azurehound)
@@ -965,7 +965,7 @@ def route_azure_users_with_dangerous_rights_to_users():
     query = "MATCH (a) WHERE (a:User OR a:AZUser) WITH a MATCH p=allShortestPaths((u:AZUser)-[*]->(a)) WHERE NOT a=u RETURN p"
     return run_query(query)
 
-@mcp.tool("tool://route_principals_to_azure_vm")
+@mcp.tool()
 def route_principals_to_azure_vm():
     """
     [WIP] Route from principal(s) to Azure VM (Required: azurehound)
@@ -973,7 +973,7 @@ def route_principals_to_azure_vm():
     query = "MATCH p=allshortestpaths((a)-[*]->(vm:AZVM)) WHERE NOT a=vm RETURN p"
     return run_query(query)
 
-@mcp.tool("tool://route_principals_to_global_administrators")
+@mcp.tool()
 def route_principals_to_global_administrators():
     """
     [WIP] Route from principal(s) to principal(s) with Global Administrator permissions (Required: azurehound)
