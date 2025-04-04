@@ -37,6 +37,7 @@ BloodHound MCP (Model Context Protocol) is an innovative extension of the BloodH
 ## Usage
 ![](img/1.png)
 ![](img/2.png)
+![](img/3.png)
 
 ## Configuration
 To customize BloodHound MCP, update the configuration file in your MCP-supported tool. Key settings include:
